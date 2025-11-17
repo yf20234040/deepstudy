@@ -1,6 +1,8 @@
-import transforms as T
+import torch
+from torchvision import transforms as T  # 改为从torchvision导入transforms
+from torch.utils.data import DataLoader, Subset
+from torchvision import utils
 from pennfudan_dataset import PennFudanDataset
-import utils
 
 # 定义数据转换函数（训练集添加水平翻转扩充）
 def get_transform(train):
