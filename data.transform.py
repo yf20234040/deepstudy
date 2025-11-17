@@ -1,5 +1,5 @@
 import transforms as T
-from torch.utils.data import DataLoader, Subset
+from pennfudan_dataset import PennFudanDataset
 import utils
 
 # 定义数据转换函数（训练集添加水平翻转扩充）

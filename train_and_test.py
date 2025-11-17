@@ -1,3 +1,6 @@
+import torch
+from MaskRCNN import model  # 导入模型
+from data.transform import data_loader, data_loader_test  # 导入数据加载器
 from engine import train_one_epoch, evaluate
 import torch.optim as optim
 
