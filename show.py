@@ -1,8 +1,9 @@
 import torch
 from MaskRCNN import model, device  # 导入模型和设备
-from data.transform import dataset_test  # 导入测试集
+from data_transform import dataset_test  # 导入测试集
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
+
 
 
 def show_prediction(img, target, pred):

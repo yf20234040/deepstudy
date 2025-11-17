@@ -1,8 +1,13 @@
+# 补充必要的基础导入
 import torch
-from MaskRCNN import model  # 导入模型
-from data.transform import data_loader, data_loader_test  # 导入数据加载器
+# 导入数据集和数据加载器（需先加载数据转换模块）
+from data_transform import data_loader, data_loader_test
+# 导入模型（确保模型已定义）
+from MaskRCNN import model
+# 导入训练和评估工具
 from engine import train_one_epoch, evaluate
 import torch.optim as optim
+
 
 # 设置训练设备（GPU优先，无则用CPU）
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
