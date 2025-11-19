@@ -1,11 +1,26 @@
 import torch
-from MaskRCNN import model, device  # 导入模型和设备
+import matplotlib
+from MaskRCNN import get_instance_segmentation_model  # 导入模型构建函数
 from data_transform import dataset_test  # 导入测试集
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
 
+matplotlib.rc('font', family='SimHei')
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+# 手动初始化设备（与训练保持一致）
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+# 初始化模型并加载权重
+num_classes = 2  # 背景+行人
+model = get_instance_segmentation_model(num_classes)
+model.to(device)
+# 加载训练好的权重（替换为实际文件名，如 model_epoch9.pth）
+model.load_state_dict(torch.load('maskrcnn_epoch9.pth', map_location=device))
+model.eval()  # 设置为评估模式
 
 
+# 以下 show_prediction 函数和可视化代码保持不变...
 def show_prediction(img, target, pred):
     # 图像反归一化（从张量转为PIL图像）
     img = F.to_pil_image(img)
@@ -47,7 +62,6 @@ test_indices = random.sample(range(len(dataset_test)), 3)
 for idx in test_indices:
     img, target = dataset_test[idx]
     img = img.unsqueeze(0).to(device)
-    model.eval()
     with torch.no_grad():
         pred = model(img)
     show_prediction(img.squeeze(0), target, pred)

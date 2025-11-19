@@ -1,28 +1,36 @@
 import torch
-from torchvision import transforms as T  # 改为从torchvision导入transforms
+# 从自定义transforms导入正确的类
+from transforms import Compose, PILToTensor, ToDtype, RandomHorizontalFlip
 from torch.utils.data import DataLoader, Subset
-from torchvision import utils
 from pennfudan_dataset import PennFudanDataset
 
-# 定义数据转换函数（训练集添加水平翻转扩充）
+# 定义适用于目标检测的collate函数
+def collate_fn(batch):
+    return tuple(zip(*batch))
+
+# 定义数据转换函数（使用自定义转换类）
 def get_transform(train):
     transforms = []
-    transforms.append(T.ToTensor())  # 转为张量并归一化
+    # 1. 将PIL图像转为张量（对应原ToTensor的第一步）
+    transforms.append(PILToTensor())
+    # 2. 转换数据类型并归一化（对应原ToTensor的归一化步骤）
+    transforms.append(ToDtype(torch.float32, scale=True))
+    # 训练集添加水平翻转
     if train:
-        transforms.append(T.RandomHorizontalFlip(0.5))  # 50%概率水平翻转
-    return T.Compose(transforms)
+        transforms.append(RandomHorizontalFlip(0.5))
+    return Compose(transforms)  # 使用自定义Compose处理双参数
 
 # 加载数据集并分割训练集/测试集
 dataset = PennFudanDataset('PennFudanPed', get_transform(train=True))
 dataset_test = PennFudanDataset('PennFudanPed', get_transform(train=False))
-indices = torch.randperm(len(dataset)).tolist()  # 随机打乱索引
-dataset = Subset(dataset, indices[:-50])  # 训练集（除最后50张）
-dataset_test = Subset(dataset_test, indices[-50:])  # 测试集（最后50张）
+indices = torch.randperm(len(dataset)).tolist()
+dataset = Subset(dataset, indices[:-50])
+dataset_test = Subset(dataset_test, indices[-50:])
 
-# 定义数据加载器（collate_fn处理批次中不同数量的目标）
+# 定义数据加载器
 data_loader = DataLoader(
-    dataset, batch_size=2, shuffle=True, num_workers=4, collate_fn=utils.collate_fn
+    dataset, batch_size=2, shuffle=True, num_workers=4, collate_fn=collate_fn
 )
 data_loader_test = DataLoader(
-    dataset_test, batch_size=1, shuffle=False, num_workers=4, collate_fn=utils.collate_fn
+    dataset_test, batch_size=1, shuffle=False, num_workers=4, collate_fn=collate_fn
 )
